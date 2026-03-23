@@ -49,7 +49,7 @@ No installation. No terminal. No npm.
 
 ## Live Demo
 
-[View on GitHub Pages](https://github.com/labouchh/Financial-Tracker/velo.html)
+[View on GitHub Pages]([https://github.com/labouchh/Financial-Tracker/velo.html](https://labouchh.github.io/Financial-Tracker/velo/velo.html))
 
 ---
 
