@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- 
+  FinTrack — Wealth Builder
+  Copyright (c) 2025 [Your Name]
+  All rights reserved. Do not reuse without permission.
+-->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Velo | Wealth Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:  #f5f0e8;
+      --beige:  #e8dfc8;
+      --tan:    #d4c8a8;
+      --green:  #2d5a27;
+      --green2: #3d7a35;
+      --green3: #5a9e50;
+      --gold:   #b8860b;
+      --text:   #1a2e18;
+      --muted:  #6b7c69;
+      --white:  #fffdf7;
+      --red:    #dc2626;
+      --amber:  #d97706;
+      --purple: #7c3aed;
+      --blue:   #0369a1;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--white);
+      border-bottom: 1px solid var(--beige);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(45,90,39,0.06);
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--green);
+    }
+    .logo span { color: var(--gold); }
+
+    nav {
+      display: flex;
+      gap: 4px;
+      background: var(--beige);
+      border-radius: 10px;
+      padding: 4px;
+    }
+
+    nav button {
+      padding: 7px 16px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: capitalize;
+    }
+
+    nav button.active { background: var(--green); color: white; }
+
+    #add-btn {
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: 9px;
+      padding: 9px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 3px 12px rgba(45,90,39,0.28);
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    .month-bar {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .month-bar button {
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--tan);
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+    .month-bar button.active { background: var(--green); border-color: var(--green); color: white; }
+
+    .tab { display: none; }
+    .tab.active { display: block; }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--beige);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(45,90,39,0.05);
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+
+    .card-sub { font-size: 11px; color: var(--muted); margin-bottom: 14px; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .kpi {
+      background: var(--white);
+      border: 1px solid var(--beige);
+      border-radius: 13px;
+      padding: 16px 18px;
+      box-shadow: 0 2px 8px rgba(45,90,39,0.05);
+    }
+
+    .kpi-label { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .kpi-value { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; }
+    .kpi-sub   { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+    .prog-wrap {
+      height: 7px;
+      background: var(--beige);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 5px 0 3px;
+    }
+    .prog-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+
+    .tx-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--beige);
+    }
+    .tx-row:last-child { border-bottom: none; }
+    .tx-left { display: flex; align-items: center; gap: 10px; }
+    .tx-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .tx-name { font-size: 13px; font-weight: 500; }
+    .tx-meta { font-size: 10px; color: var(--muted); margin-top: 1px; }
+    .tx-amount { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; }
+    .tx-del {
+      background: none; border: none; color: var(--tan);
+      cursor: pointer; font-size: 18px; padding: 0 4px; line-height: 1;
+      transition: color 0.15s; margin-left: 6px;
+    }
+    .tx-del:hover { color: var(--red); }
+
+    .rule-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .rule-item { background: var(--cream); border: 1px solid var(--beige); border-radius: 11px; padding: 12px 14px; }
+    .rule-item-title { font-size: 11px; font-weight: 700; margin-bottom: 2px; }
+    .rule-item-note  { font-size: 10px; color: var(--muted); margin-bottom: 8px; }
+    .rule-amounts { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; }
+    .rule-pct { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+    .rule-list-item { display: flex; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--beige); font-size: 11px; }
+    .rule-list-item:last-child { border-bottom: none; }
+    .rule-src { font-size: 9px; color: var(--muted); margin-top: 2px; }
+
+    .ret-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+    .ret-stat { background: var(--cream); border: 1px solid var(--beige); border-radius: 10px; padding: 10px 12px; text-align: center; }
+    .ret-stat-val { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; }
+    .ret-stat-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .ret-stat-sub   { font-size: 9px; font-weight: 600; margin-top: 1px; }
+
+    .elig-banner { border-radius: 9px; padding: 10px 14px; margin-bottom: 14px; font-size: 11px; }
+    .elig-title  { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+
+    .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .field label {
+      display: block; font-size: 10px; color: var(--muted); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;
+    }
+    .field input, .field select {
+      width: 100%; background: var(--cream); border: 1.5px solid var(--tan);
+      border-radius: 7px; padding: 9px 12px; color: var(--text);
+      font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none;
+    }
+    .field-hint { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+    .milestones { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+    .milestone { background: var(--cream); border: 1px solid var(--beige); border-radius: 10px; padding: 8px 14px; text-align: center; flex: 1; min-width: 80px; }
+    .milestone-yr  { font-size: 10px; color: var(--muted); font-weight: 600; }
+    .milestone-val { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; }
+
+    /* budget */
+    .budget-row { margin-bottom: 16px; }
+    .budget-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 13px; font-weight: 500; }
+    .budget-right { display: flex; align-items: center; gap: 5px; font-size: 12px; }
+    .budget-edit-input {
+      width: 80px; background: var(--cream); border: 1.5px solid var(--tan);
+      border-radius: 6px; padding: 2px 7px; font-size: 12px;
+      font-family: 'DM Sans', sans-serif; outline: none; color: var(--text);
+    }
+    .budget-target { color: var(--green); font-weight: 700; cursor: pointer; border-bottom: 1px dotted var(--green3); }
+    .budget-pct    { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+    /* modal */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(45,90,39,0.22); z-index: 200;
+      align-items: center; justify-content: center;
+      padding: 16px; backdrop-filter: blur(5px);
+    }
+    #modal-overlay.open { display: flex; }
+    #modal {
+      background: var(--white); border: 1px solid var(--beige);
+      border-radius: 18px; padding: 28px; width: 100%; max-width: 400px;
+      box-shadow: 0 20px 60px rgba(45,90,39,0.18);
+    }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--green); margin-bottom: 18px; }
+    .type-toggle { display: flex; background: var(--beige); border-radius: 9px; overflow: hidden; margin-bottom: 14px; }
+    .type-toggle button {
+      flex: 1; padding: 9px; border: none; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+      background: transparent; color: var(--muted); transition: all 0.15s; text-transform: capitalize;
+    }
+    .type-toggle button.active-expense { background: var(--red);   color: white; }
+    .type-toggle button.active-income  { background: var(--green); color: white; }
+    .modal-field { margin-bottom: 12px; }
+    .modal-field label { display: block; font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .modal-field input, .modal-field select {
+      width: 100%; background: var(--cream); border: 1.5px solid var(--tan);
+      border-radius: 7px; padding: 9px 12px; color: var(--text);
+      font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none;
+    }
+    .modal-btns { display: flex; gap: 10px; margin-top: 16px; }
+    .modal-btns button { flex: 1; padding: 11px; border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+    #modal-cancel { background: var(--beige); color: var(--muted); }
+    #modal-save   { background: var(--green); color: white; box-shadow: 0 3px 12px rgba(45,90,39,0.28); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Ve<span>lo</span></div>
+  <nav>
+    <button class="active" onclick="goTab('dashboard')">Dashboard</button>
+    <button onclick="goTab('retirement')">Retirement</button>
+    <button onclick="goTab('wealth')">Wealth</button>
+    <button onclick="goTab('transactions')">Transactions</button>
+    <button onclick="goTab('budget')">Budget</button>
+  </nav>
+  <button id="add-btn" onclick="openModal()">+ Add</button>
+</header>
+
+<main>
+  <div class="month-bar" id="month-bar"></div>
+
+  <!-- DASHBOARD -->
+  <div class="tab active" id="tab-dashboard">
+    <div class="kpi-grid" id="kpi-grid"></div>
+    <div class="card" style="margin-bottom:14px;border-left:4px solid var(--green3);">
+      <div class="card-title">50/30/20 Budget Rule</div>
+      <div class="card-sub">Elizabeth Warren / CFPB — Needs 50% · Wants 30% · Savings 20%</div>
+      <div class="rule-grid" id="rule-grid"></div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Expense Breakdown</div>
+        <canvas id="pie-chart" height="180"></canvas>
+        <div id="pie-legend" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">6-Month Trend</div>
+        <div style="display:flex;gap:12px;margin-bottom:8px;">
+          <span style="font-size:10px;color:var(--green);font-weight:700;">■ Income</span>
+          <span style="font-size:10px;color:var(--red);font-weight:700;">■ Expenses</span>
+        </div>
+        <canvas id="bar-chart" height="175"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Recent Transactions</div>
+      <div id="recent-list"></div>
+    </div>
+  </div>
+
+  <!-- RETIREMENT -->
+  <div class="tab" id="tab-retirement">
+    <div class="kpi-grid" id="ret-kpi-grid"></div>
+    <div class="card" style="margin-bottom:14px;border-top:3px solid var(--blue);">
+      <div class="card-title" style="color:var(--blue);">401(k) Tracker</div>
+      <div class="card-sub" id="k401-sub"></div>
+      <div class="input-grid">
+        <div class="field"><label>Current Balance ($)</label><input type="number" id="k401-balance" value="0" oninput="saveWealth();renderAll()"/></div>
+        <div class="field"><label>Monthly Contribution ($)</label><input type="number" id="k401-monthly" value="0" oninput="saveWealth();renderAll()"/></div>
+        <div class="field">
+          <label>Employer Match (%)</label>
+          <input type="number" id="k401-match-pct" value="50" oninput="saveWealth();renderAll()"/>
+          <div class="field-hint">e.g. 50 = employer matches 50¢ per $1</div>
+        </div>
+        <div class="field">
+          <label>Match Cap (% of salary)</label>
+          <input type="number" id="k401-match-cap" value="6" oninput="saveWealth();renderAll()"/>
+          <div class="field-hint">Typical: 3–6%</div>
+        </div>
+      </div>
+      <div class="ret-stats" id="k401-stats"></div>
+      <div class="prog-wrap"><div class="prog-fill" id="k401-prog"></div></div>
+      <div id="k401-prog-label" class="budget-pct"></div>
+    </div>
+    <div class="card" style="margin-bottom:14px;border-top:3px solid var(--purple);">
+      <div class="card-title" style="color:var(--purple);">Roth IRA Tracker</div>
+      <div class="card-sub">2026 limit: $7,500 (under 50) · Tax-free growth · Source: IRS / Fidelity / Schwab</div>
+      <div class="input-grid">
+        <div class="field"><label>Current Balance ($)</label><input type="number" id="roth-balance" value="0" oninput="saveWealth();renderAll()"/></div>
+        <div class="field"><label>Monthly Contribution ($)</label><input type="number" id="roth-monthly" value="0" oninput="saveWealth();renderAll()"/></div>
+        <div class="field">
+          <label>Annual Income / MAGI ($)</label>
+          <input type="number" id="roth-income" value="0" oninput="saveWealth();renderAll()"/>
+          <div class="field-hint">Used to check IRS eligibility</div>
+        </div>
+        <div class="field">
+          <label>Filing Status</label>
+          <select id="roth-filing" onchange="saveWealth();renderAll()">
+            <option value="single">Single / Head of Household</option>
+            <option value="married">Married Filing Jointly</option>
+          </select>
+        </div>
+      </div>
+      <div class="elig-banner" id="roth-elig"></div>
+      <div class="ret-stats" id="roth-stats"></div>
+      <div class="prog-wrap"><div class="prog-fill" id="roth-prog"></div></div>
+      <div id="roth-prog-label" class="budget-pct"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">10-Year Retirement Projection</div>
+      <div class="card-sub" id="proj-sub"></div>
+      <canvas id="proj-chart" height="200"></canvas>
+      <div class="milestones" id="milestones"></div>
+    </div>
+  </div>
+
+  <!-- WEALTH -->
+  <div class="tab" id="tab-wealth">
+    <div class="card" style="margin-bottom:14px;border-left:4px solid var(--gold);">
+      <div class="card-title">Growth Settings</div>
+      <div class="card-sub">Used across all compound interest projections: A = P(1 + r/n)^(nt)</div>
+      <div class="input-grid">
+        <div class="field"><label>Emergency Fund / Savings ($)</label><input type="number" id="w-savings" value="0" oninput="saveWealth();renderAll()"/></div>
+        <div class="field">
+          <label>Annual Return Rate (%)</label>
+          <input type="number" id="w-rate" value="7" oninput="saveWealth();renderAll()"/>
+          <div class="field-hint">S&amp;P 500 historical avg: 7–10%</div>
+        </div>
+      </div>
+    </div>
+    <div class="kpi-grid" id="wealth-kpis"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="card" style="border-left:4px solid var(--amber);">
+        <div class="card-title">Emergency Fund</div>
+        <div class="card-sub">Target: 6× monthly expenses · CFPB / Ramsey Solutions</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+          <span id="ef-saved" style="font-weight:600;"></span>
+          <span id="ef-goal" style="color:var(--muted);"></span>
+        </div>
+        <div class="prog-wrap" style="height:10px;"><div class="prog-fill" id="ef-prog"></div></div>
+        <div id="ef-label" class="budget-pct" style="margin-top:5px;"></div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--green3);">
+        <div class="card-title">6 Rules to Build Wealth</div>
+        <div id="wealth-rules"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSACTIONS -->
+  <div class="tab" id="tab-transactions">
+    <div class="card">
+      <div class="card-title" id="tx-title"></div>
+      <div id="tx-list"></div>
+    </div>
+  </div>
+
+  <!-- BUDGET -->
+  <div class="tab" id="tab-budget">
+    <div class="card">
+      <div class="card-title">Monthly Budgets</div>
+      <div class="card-sub" id="budget-sub"></div>
+      <div id="budget-list"></div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div id="modal">
+    <div class="modal-title">New Transaction</div>
+    <div class="type-toggle">
+      <button id="type-expense" class="active-expense" onclick="setType('expense')">Expense</button>
+      <button id="type-income" onclick="setType('income')">Income</button>
+    </div>
+    <div class="modal-field"><label>Category</label><select id="m-category"></select></div>
+    <div class="modal-field"><label>Amount ($)</label><input type="number" id="m-amount" placeholder="0"/></div>
+    <div class="modal-field"><label>Note</label><input type="text" id="m-note" placeholder="Description…"/></div>
+    <div class="modal-field"><label>Date</label><input type="date" id="m-date"/></div>
+    <div class="modal-btns">
+      <button id="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button id="modal-save" onclick="saveTx()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  // categories
+  const CATS = {
+    income: [
+      { id:"salary",       label:"Salary",      icon:"💼", color:"#2d5a27" },
+      { id:"freelance",    label:"Freelance",   icon:"🧑‍💻", color:"#5a9e50" },
+      { id:"investment",   label:"Investment",  icon:"📈", color:"#b8860b" },
+      { id:"other_income", label:"Other",       icon:"💰", color:"#0891b2" },
+    ],
+    expense: [
+      { id:"shopping",      label:"Shopping",      icon:"🛍️", color:"#7c3aed" },
+      { id:"food",          label:"Groceries",     icon:"🛒", color:"#d97706" },
+      { id:"gas",           label:"Gas & Car",     icon:"⛽", color:"#dc2626" },
+      { id:"housing",       label:"Housing",       icon:"🏠", color:"#3d7a35" },
+      { id:"health",        label:"Health",        icon:"❤️", color:"#be185d" },
+      { id:"entertainment", label:"Entertainment", icon:"🎮", color:"#7c2d12" },
+      { id:"utilities",     label:"Utilities",     icon:"⚡", color:"#0369a1" },
+      { id:"savings",       label:"Savings",       icon:"🏦", color:"#065f46" },
+      { id:"other",         label:"Other",         icon:"📦", color:"#6b7c69" },
+    ]
+  };
+
+  // build a quick lookup by id
+  const CAT_MAP = {};
+  [...CATS.income, ...CATS.expense].forEach(c => CAT_MAP[c.id] = c);
+
+  // 2026 IRS limits — IRS.gov / Fidelity
+  const IRS = {
+    k401: 24500,
+    roth_u50: 7500,
+    roth_single_start: 153000, roth_single_end: 168000,
+    roth_married_start: 242000, roth_married_end: 252000,
+  };
+
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  // app state
+  let transactions = [];
+  let budgets = { shopping:500, food:400, gas:300, housing:1500, health:200, entertainment:150, utilities:150, savings:500, other:100 };
+  let wealth  = { savings:0, rate:7, k401_balance:0, k401_monthly:0, k401_match_pct:50, k401_match_cap:6, roth_balance:0, roth_monthly:0, roth_income:0, roth_filing:"single" };
+  let currentMonth = new Date().getMonth();
+  let currentYear  = new Date().getFullYear();
+  let modalType    = "expense";
+  let pieChart, barChart, projChart;
+
+  // ── storage ──────────────────────────────────────────────────────────────
+
+  function save() {
+    localStorage.setItem("fintrack_v1", JSON.stringify({ transactions, budgets, wealth }));
+  }
+
+  function load() {
+    const raw = localStorage.getItem("fintrack_v1");
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    transactions = d.transactions || [];
+    budgets      = { ...budgets, ...d.budgets };
+    wealth       = { ...wealth,  ...d.wealth  };
+  }
+
+  function saveWealth() {
+    wealth.savings        = parseFloat(document.getElementById("w-savings").value)     || 0;
+    wealth.rate           = parseFloat(document.getElementById("w-rate").value)         || 7;
+    wealth.k401_balance   = parseFloat(document.getElementById("k401-balance").value)   || 0;
+    wealth.k401_monthly   = parseFloat(document.getElementById("k401-monthly").value)   || 0;
+    wealth.k401_match_pct = parseFloat(document.getElementById("k401-match-pct").value) || 50;
+    wealth.k401_match_cap = parseFloat(document.getElementById("k401-match-cap").value) || 6;
+    wealth.roth_balance   = parseFloat(document.getElementById("roth-balance").value)   || 0;
+    wealth.roth_monthly   = parseFloat(document.getElementById("roth-monthly").value)   || 0;
+    wealth.roth_income    = parseFloat(document.getElementById("roth-income").value)    || 0;
+    wealth.roth_filing    = document.getElementById("roth-filing").value;
+    save();
+  }
+
+  // ── helpers ───────────────────────────────────────────────────────────────
+
+  function fmt(n) {
+    return new Intl.NumberFormat("en-US", { style:"currency", currency:"USD", minimumFractionDigits:0 }).format(n);
+  }
+
+  function fmtK(n) {
+    if (n >= 1000000) return "$" + (n / 1000000).toFixed(2) + "M";
+    if (n >= 1000)    return "$" + (n / 1000).toFixed(1)    + "k";
+    return "$" + Math.round(n);
+  }
+
+  function genId() {
+    return Math.random().toString(36).slice(2, 9);
+  }
+
+  // compound interest formula: A = P(1 + r/n)^(nt) — investor.gov
+  function compound(P, monthlyContrib, annualRate, years) {
+    if (years === 0) return P;
+    const r = annualRate / 100 / 12;
+    const n = years * 12;
+    return P * Math.pow(1 + r, n) + monthlyContrib * ((Math.pow(1 + r, n) - 1) / r);
+  }
+
+  // rule of 72 — how long to double your money
+  function rule72(rate) {
+    return rate > 0 ? (72 / rate).toFixed(1) : "∞";
+  }
+
+  function rothEligibility(income, filing) {
+    const limit = IRS.roth_u50;
+    const start = filing === "married" ? IRS.roth_married_start : IRS.roth_single_start;
+    const end   = filing === "married" ? IRS.roth_married_end   : IRS.roth_single_end;
+    if (income <= start) return { eligible:true,  max:limit,  note:"Full contribution eligible" };
+    if (income >= end)   return { eligible:false, max:0,      note:"Income too high — consider Backdoor Roth IRA" };
+    const reduced = Math.floor(limit * (1 - (income - start) / (end - start)) / 10) * 10;
+    return { eligible:true, max:reduced, note:"Partial contribution (income phase-out)" };
+  }
+
+  function barColor(pct) {
+    if (pct > 100) return "#dc2626";
+    if (pct > 75)  return "#d97706";
+    return "#5a9e50";
+  }
+
+  function getMonthTx() {
+    return transactions.filter(t => {
+      const d = new Date(t.date);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
+  }
+
+  // ── navigation ────────────────────────────────────────────────────────────
+
+  function goTab(name) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+    document.getElementById("tab-" + name).classList.add("active");
+    document.querySelectorAll("nav button").forEach(b => {
+      if (b.textContent.toLowerCase() === name) b.classList.add("active");
+    });
+    renderAll();
+  }
+
+  // ── month bar ─────────────────────────────────────────────────────────────
+
+  function buildMonthBar() {
+    const bar = document.getElementById("month-bar");
+    MONTHS.forEach((m, i) => {
+      const btn = document.createElement("button");
+      btn.textContent = m;
+      if (i === currentMonth) btn.classList.add("active");
+      btn.onclick = () => {
+        currentMonth = i;
+        document.querySelectorAll(".month-bar button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderAll();
+      };
+      bar.appendChild(btn);
+    });
+  }
+
+  // ── render all ────────────────────────────────────────────────────────────
+
+  function renderAll() {
+    renderDashboard();
+    renderRetirement();
+    renderWealth();
+    renderTransactions();
+    renderBudget();
+  }
+
+  // ── dashboard ─────────────────────────────────────────────────────────────
+
+  function renderDashboard() {
+    const txs     = getMonthTx();
+    const income  = txs.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0);
+    const expense = txs.filter(t => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+    const net     = income - expense;
+    const save10  = income * 0.10;
+
+    document.getElementById("kpi-grid").innerHTML = [
+      { label:"Income",      value:fmt(income),  color:"#2d5a27" },
+      { label:"Expenses",    value:fmt(expense), color:"#dc2626" },
+      { label:"Net Balance", value:fmt(net),     color: net >= 0 ? "#2d5a27" : "#dc2626" },
+      { label:"10% Savings", value:fmt(save10),  color:"#b8860b", sub:"Pay yourself first" },
+    ].map(k => `
+      <div class="kpi">
+        <div class="kpi-label">${k.label}</div>
+        <div class="kpi-value" style="color:${k.color}">${k.value}</div>
+        ${k.sub ? `<div class="kpi-sub">${k.sub}</div>` : ""}
+      </div>`).join("");
+
+    // 50/30/20
+    const needsCats = ["housing","food","gas","utilities","health"];
+    const wantsCats = ["shopping","entertainment","other"];
+    const needs = txs.filter(t => t.type==="expense" && needsCats.includes(t.category)).reduce((s,t)=>s+t.amount,0);
+    const wants = txs.filter(t => t.type==="expense" && wantsCats.includes(t.category)).reduce((s,t)=>s+t.amount,0);
+
+    document.getElementById("rule-grid").innerHTML = [
+      { label:"Needs (50%)",   spent:needs,  target:income*0.5, note:"Housing, food, gas, utilities, health", col:"#2d5a27" },
+      { label:"Wants (30%)",   spent:wants,  target:income*0.3, note:"Shopping, entertainment, other",        col:"#d97706" },
+      { label:"Savings (20%)", spent:save10, target:income*0.2, note:"10% savings + 10% investment goal",     col:"#b8860b" },
+    ].map(r => {
+      const pct  = r.target > 0 ? (r.spent / r.target) * 100 : 0;
+      const over = r.spent > r.target;
+      return `
+        <div class="rule-item">
+          <div class="rule-item-title">${r.label}</div>
+          <div class="rule-item-note">${r.note}</div>
+          <div class="rule-amounts">
+            <span style="font-weight:700;color:${over?"#dc2626":r.col}">${fmt(r.spent)}</span>
+            <span style="color:var(--muted)">of ${fmt(r.target)}</span>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-fill" style="width:${Math.min(pct,100)}%;background:${over?"#dc2626":pct>80?"#d97706":r.col}"></div>
+          </div>
+          <div class="rule-pct">${over ? fmt(r.spent-r.target)+" over" : pct.toFixed(0)+"%"}</div>
+        </div>`;
+    }).join("");
+
+    // pie chart
+    const byCategory = CATS.expense
+      .map(c => ({ label:c.label, value:txs.filter(t=>t.type==="expense"&&t.category===c.id).reduce((s,t)=>s+t.amount,0), color:c.color, icon:c.icon }))
+      .filter(c => c.value > 0);
+
+    if (pieChart) pieChart.destroy();
+    pieChart = new Chart(document.getElementById("pie-chart").getContext("2d"), {
+      type: "doughnut",
+      data: {
+        labels: byCategory.map(c => c.label),
+        datasets: [{ data:byCategory.map(c=>c.value), backgroundColor:byCategory.map(c=>c.color), borderWidth:0 }]
+      },
+      options: { plugins:{ legend:{ display:false } }, cutout:"55%" }
+    });
+
+    document.getElementById("pie-legend").innerHTML = byCategory.map(c =>
+      `<span style="font-size:10px;font-weight:600;color:${c.color};background:${c.color}18;border:1px solid ${c.color}30;border-radius:20px;padding:2px 8px;">${c.icon} ${c.label}</span>`
+    ).join("");
+
+    // bar chart — last 6 months
+    const sixMonths = Array.from({length:6}, (_, i) => {
+      const d  = new Date(currentYear, currentMonth - 5 + i, 1);
+      const m  = d.getMonth();
+      const y  = d.getFullYear();
+      const mt = transactions.filter(t => { const td = new Date(t.date); return td.getMonth()===m && td.getFullYear()===y; });
+      return {
+        name:    MONTHS[m],
+        income:  mt.filter(t => t.type==="income").reduce((s,t)=>s+t.amount, 0),
+        expense: mt.filter(t => t.type==="expense").reduce((s,t)=>s+t.amount, 0),
+      };
+    });
+
+    if (barChart) barChart.destroy();
+    barChart = new Chart(document.getElementById("bar-chart").getContext("2d"), {
+      type: "bar",
+      data: {
+        labels: sixMonths.map(m => m.name),
+        datasets: [
+          { label:"Income",   data:sixMonths.map(m=>m.income),  backgroundColor:"#2d5a27", borderRadius:4 },
+          { label:"Expenses", data:sixMonths.map(m=>m.expense), backgroundColor:"#dc2626", borderRadius:4 },
+        ]
+      },
+      options: { plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{display:false} }, y:{ grid:{color:"#e8dfc8"} } } }
+    });
+
+    // recent transactions
+    const txList = txs.slice(0, 6);
+    document.getElementById("recent-list").innerHTML = txList.length === 0
+      ? `<div style="color:var(--muted);text-align:center;padding:18px 0;font-size:12px;">No transactions this month</div>`
+      : txList.map(t => buildTxRow(t, false)).join("");
+  }
+
+  function buildTxRow(t, showDelete) {
+    const cat   = CAT_MAP[t.category] || { label:t.category, icon:"📦", color:"#6b7c69" };
+    const color = t.type === "income" ? "#2d5a27" : "#dc2626";
+    const sign  = t.type === "income" ? "+" : "-";
+    return `
+      <div class="tx-row">
+        <div class="tx-left">
+          <div class="tx-icon" style="background:${cat.color}18;border:1px solid ${cat.color}22;">${cat.icon}</div>
+          <div>
+            <div class="tx-name">${t.note || cat.label}</div>
+            <div class="tx-meta">${cat.label} · ${t.date}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="tx-amount" style="color:${color}">${sign}${fmt(t.amount)}</div>
+          ${showDelete ? `<button class="tx-del" onclick="deleteTx('${t.id}')">×</button>` : ""}
+        </div>
+      </div>`;
+  }
+
+  // ── retirement ────────────────────────────────────────────────────────────
+
+  function renderRetirement() {
+    const txs    = getMonthTx();
+    const income = txs.filter(t => t.type==="income").reduce((s,t)=>s+t.amount, 0);
+    const save10 = income * 0.10;
+
+    const k401Limit  = IRS.k401;
+    const k401Annual = wealth.k401_monthly * 12;
+    const salary     = income * 12;
+    const matchAnnual = Math.min(salary * wealth.k401_match_cap / 100, k401Annual) * (wealth.k401_match_pct / 100);
+    const k401Pct    = k401Limit > 0 ? Math.min((k401Annual / k401Limit) * 100, 100) : 0;
+    const k401Future = compound(wealth.k401_balance, wealth.k401_monthly + matchAnnual/12, wealth.rate, 10);
+
+    const roth       = rothEligibility(wealth.roth_income, wealth.roth_filing);
+    const rothAnnual = wealth.roth_monthly * 12;
+    const rothPct    = roth.max > 0 ? Math.min((rothAnnual / roth.max) * 100, 100) : 0;
+    const rothOver   = rothAnnual > roth.max;
+    const rothFuture = compound(wealth.roth_balance, wealth.roth_monthly, wealth.rate, 10);
+
+    document.getElementById("k401-sub").textContent = `2026 limit: ${fmt(k401Limit)} · Source: IRS Notice 2025-67 / Fidelity`;
+
+    document.getElementById("ret-kpi-grid").innerHTML = [
+      { label:"401(k) Balance",   value:fmtK(wealth.k401_balance),                  color:"#0369a1", sub:"Current" },
+      { label:"Roth IRA Balance", value:fmtK(wealth.roth_balance),                   color:"#7c3aed", sub:"Current" },
+      { label:"Total Retirement", value:fmtK(wealth.k401_balance+wealth.roth_balance),color:"#2d5a27", sub:"Combined" },
+      { label:"In 10 Years",      value:fmtK(k401Future+rothFuture),                color:"#b8860b", sub:`At ${wealth.rate}% avg return` },
+    ].map(k => `
+      <div class="kpi">
+        <div class="kpi-label">${k.label}</div>
+        <div class="kpi-value" style="color:${k.color}">${k.value}</div>
+        <div class="kpi-sub">${k.sub}</div>
+      </div>`).join("");
+
+    document.getElementById("k401-stats").innerHTML = [
+      { label:"Annual Contrib",  val:fmt(k401Annual),           color:"#0369a1" },
+      { label:"Employer Match",  val:fmt(matchAnnual),          color:"#5a9e50", sub:"Free money!" },
+      { label:"% of 2026 Limit", val:k401Pct.toFixed(0)+"%",   color:k401Pct>=100?"#2d5a27":"#d97706" },
+      { label:"10yr Projection", val:fmtK(k401Future),         color:"#b8860b" },
+    ].map(s => `
+      <div class="ret-stat">
+        <div class="ret-stat-val" style="color:${s.color}">${s.val}</div>
+        <div class="ret-stat-label">${s.label}</div>
+        ${s.sub ? `<div class="ret-stat-sub" style="color:#5a9e50">${s.sub}</div>` : ""}
+      </div>`).join("");
+
+    document.getElementById("k401-prog").style.width      = k401Pct + "%";
+    document.getElementById("k401-prog").style.background = barColor(k401Pct);
+    document.getElementById("k401-prog-label").textContent = k401Annual >= k401Limit
+      ? "✅ Maxed out! Excellent work."
+      : `${fmt(k401Limit - k401Annual)} remaining to max out`;
+
+    // roth eligibility banner
+    const eb = document.getElementById("roth-elig");
+    if (!roth.eligible) {
+      eb.style.cssText = "background:rgba(220,38,38,0.07);border:1px solid rgba(220,38,38,0.2);border-radius:9px;padding:10px 14px;margin-bottom:14px;font-size:11px;";
+      eb.innerHTML = `<div class="elig-title" style="color:#dc2626">❌ Ineligible — Income Too High</div><div>${roth.note}</div>`;
+    } else if (rothOver) {
+      eb.style.cssText = "background:rgba(220,38,38,0.07);border:1px solid rgba(220,38,38,0.2);border-radius:9px;padding:10px 14px;margin-bottom:14px;font-size:11px;";
+      eb.innerHTML = `<div class="elig-title" style="color:#dc2626">⚠️ Over-contribution Warning</div><div>Contributing ${fmt(rothAnnual)}/yr but max is ${fmt(roth.max)}. Excess incurs 6% IRS penalty.</div>`;
+    } else {
+      eb.style.cssText = "background:rgba(45,90,39,0.07);border:1px solid #c8dfc4;border-radius:9px;padding:10px 14px;margin-bottom:14px;font-size:11px;";
+      eb.innerHTML = `<div class="elig-title" style="color:#2d5a27">✅ Eligible to Contribute</div><div>Max: ${fmt(roth.max)}/yr (${fmt(roth.max/12)}/mo). ${roth.note}</div>`;
+    }
+
+    document.getElementById("roth-stats").innerHTML = [
+      { label:"Annual Contrib",   val:fmt(rothAnnual),         color:rothOver?"#dc2626":"#7c3aed" },
+      { label:"2026 Max Allowed", val:fmt(roth.max),           color:"#6b7c69" },
+      { label:"% of Limit",       val:rothPct.toFixed(0)+"%",  color:rothOver?"#dc2626":rothPct>=100?"#2d5a27":"#d97706" },
+      { label:"10yr Projection",  val:fmtK(rothFuture),       color:"#b8860b", sub:"Tax-free!" },
+    ].map(s => `
+      <div class="ret-stat">
+        <div class="ret-stat-val" style="color:${s.color}">${s.val}</div>
+        <div class="ret-stat-label">${s.label}</div>
+        ${s.sub ? `<div class="ret-stat-sub" style="color:#5a9e50">${s.sub}</div>` : ""}
+      </div>`).join("");
+
+    document.getElementById("roth-prog").style.width      = rothPct + "%";
+    document.getElementById("roth-prog").style.background = rothOver ? "#dc2626" : barColor(rothPct);
+    document.getElementById("roth-prog-label").textContent = rothOver
+      ? `⚠️ Over by ${fmt(rothAnnual - roth.max)}/yr`
+      : rothAnnual >= roth.max && roth.max > 0 ? "✅ Maxed out! Tax-free growth secured."
+      : `${fmt(roth.max - rothAnnual)}/yr remaining`;
+
+    // projection chart
+    const years = [0,1,2,3,4,5,6,7,8,9,10];
+    const projData = years.map(yr => ({
+      k401: Math.round(compound(wealth.k401_balance, wealth.k401_monthly + matchAnnual/12, wealth.rate, yr)),
+      roth: Math.round(compound(wealth.roth_balance, wealth.roth_monthly, wealth.rate, yr)),
+      sav:  Math.round(compound(wealth.savings, save10, wealth.rate, yr)),
+    }));
+
+    document.getElementById("proj-sub").textContent =
+      `A = P(1 + r/n)^(nt) · Rate: ${wealth.rate}% · Monthly: ${fmt(wealth.k401_monthly + wealth.roth_monthly)} into retirement`;
+
+    if (projChart) projChart.destroy();
+    projChart = new Chart(document.getElementById("proj-chart").getContext("2d"), {
+      type: "line",
+      data: {
+        labels: years.map(y => "Y"+y),
+        datasets: [
+          { label:"401(k)",   data:projData.map(d=>d.k401), borderColor:"#0369a1", backgroundColor:"transparent", borderWidth:2.5, pointRadius:0, tension:0.4 },
+          { label:"Roth IRA", data:projData.map(d=>d.roth), borderColor:"#7c3aed", backgroundColor:"transparent", borderWidth:2.5, pointRadius:0, tension:0.4 },
+          { label:"Savings",  data:projData.map(d=>d.sav),  borderColor:"#2d5a27", backgroundColor:"transparent", borderWidth:2,   pointRadius:0, tension:0.4, borderDash:[5,3] },
+        ]
+      },
+      options: {
+        plugins: { legend:{ labels:{ font:{ family:"DM Sans" }, boxWidth:12 } } },
+        scales: {
+          x: { grid:{ display:false } },
+          y: { grid:{ color:"#e8dfc8" }, ticks:{ callback: v => fmtK(v) } }
+        }
+      }
+    });
+
+    document.getElementById("milestones").innerHTML = [1,2,3,5,10].map(yr => `
+      <div class="milestone">
+        <div class="milestone-yr">Year ${yr}</div>
+        <div class="milestone-val" style="color:#0369a1">${fmtK(compound(wealth.k401_balance, wealth.k401_monthly+matchAnnual/12, wealth.rate, yr))}</div>
+        <div style="font-size:9px;color:#7c3aed;font-weight:600;">+${fmtK(compound(wealth.roth_balance, wealth.roth_monthly, wealth.rate, yr))} Roth</div>
+      </div>`).join("");
+  }
+
+  // ── wealth ────────────────────────────────────────────────────────────────
+
+  function renderWealth() {
+    const txs     = getMonthTx();
+    const income  = txs.filter(t => t.type==="income").reduce((s,t)=>s+t.amount, 0);
+    const expense = txs.filter(t => t.type==="expense").reduce((s,t)=>s+t.amount, 0);
+    const save10  = income * 0.10;
+    const savRate = income > 0 ? ((save10 / income) * 100).toFixed(1) : 0;
+    const efGoal  = expense > 0 ? expense * 6 : 12000;
+    const efPct   = Math.min((wealth.savings / efGoal) * 100, 100);
+
+    document.getElementById("wealth-kpis").innerHTML = [
+      { label:"Monthly Savings",    value:fmt(save10),                                     color:"#2d5a27", sub:"10% of income" },
+      { label:"Savings Rate",       value:savRate+"%",                                     color:parseFloat(savRate)>=20?"#2d5a27":"#d97706", sub:"Target ≥ 20%" },
+      { label:"Rule of 72",         value:rule72(wealth.rate)+" yrs",                      color:"#b8860b", sub:`to double at ${wealth.rate}%` },
+      { label:"10yr Savings Proj.", value:fmtK(compound(wealth.savings, save10, wealth.rate, 10)), color:"#2d5a27", sub:"Savings only" },
+    ].map(k => `
+      <div class="kpi">
+        <div class="kpi-label">${k.label}</div>
+        <div class="kpi-value" style="color:${k.color}">${k.value}</div>
+        <div class="kpi-sub">${k.sub}</div>
+      </div>`).join("");
+
+    document.getElementById("ef-saved").textContent = fmt(wealth.savings);
+    document.getElementById("ef-goal").textContent  = "goal: " + fmt(efGoal);
+    document.getElementById("ef-prog").style.width      = efPct + "%";
+    document.getElementById("ef-prog").style.background = efPct >= 100 ? "#2d5a27" : efPct >= 50 ? "#d97706" : "#dc2626";
+    document.getElementById("ef-label").textContent = efPct >= 100
+      ? "✅ Fully funded!"
+      : efPct.toFixed(0) + "% funded · " + fmt(efGoal - wealth.savings) + " to go";
+
+    document.getElementById("wealth-rules").innerHTML = [
+      { icon:"1️⃣", rule:"Save 10% of income first — then budget the rest", src:"Reverse Budgeting" },
+      { icon:"2️⃣", rule:"50% needs · 30% wants · 20% savings",             src:"50/30/20 Rule" },
+      { icon:"3️⃣", rule:`Money doubles every ~${rule72(wealth.rate)} yrs at ${wealth.rate}% return`, src:"Rule of 72" },
+      { icon:"4️⃣", rule:"Keep 3–6 months of expenses as emergency fund",   src:"CFPB / Ramsey" },
+      { icon:"5️⃣", rule:"Invest 15% of income in tax-advantaged accounts", src:"Ramsey Solutions" },
+      { icon:"6️⃣", rule:"Pay off high-interest debt before investing",      src:"Debt Avalanche" },
+    ].map(r => `
+      <div class="rule-list-item">
+        <span>${r.icon}</span>
+        <div>
+          <div style="font-weight:500;">${r.rule}</div>
+          <div class="rule-src">Source: ${r.src}</div>
+        </div>
+      </div>`).join("");
+  }
+
+  // ── transactions ──────────────────────────────────────────────────────────
+
+  function renderTransactions() {
+    const txs = getMonthTx();
+    document.getElementById("tx-title").textContent = `${MONTHS[currentMonth]} ${currentYear} — ${txs.length} transactions`;
+    document.getElementById("tx-list").innerHTML = txs.length === 0
+      ? `<div style="color:var(--muted);text-align:center;padding:24px 0;font-size:12px;">No transactions this month</div>`
+      : txs.map(t => buildTxRow(t, true)).join("");
+  }
+
+  function deleteTx(id) {
+    transactions = transactions.filter(t => t.id !== id);
+    save();
+    renderAll();
+  }
+
+  // ── budget ────────────────────────────────────────────────────────────────
+
+  function renderBudget() {
+    const txs    = getMonthTx();
+    const income = txs.filter(t => t.type==="income").reduce((s,t)=>s+t.amount, 0);
+    const auto   = income * 0.10;
+
+    document.getElementById("budget-sub").textContent =
+      `Savings auto-set to ${fmt(auto)} (10% of income). Click any amount to edit.`;
+
+    document.getElementById("budget-list").innerHTML = CATS.expense.map(c => {
+      const spent  = txs.filter(t => t.type==="expense" && t.category===c.id).reduce((s,t)=>s+t.amount, 0);
+      const target = c.id === "savings" ? auto : (budgets[c.id] || 0);
+      const pct    = target > 0 ? (spent / target) * 100 : 0;
+      const over   = spent > target;
+
+      return `
+        <div class="budget-row">
+          <div class="budget-top">
+            <span>${c.icon} ${c.label}</span>
+            <div class="budget-right">
+              <span style="color:${over?"#dc2626":"var(--muted)"}">${fmt(spent)}</span>
+              <span style="color:var(--tan)">/</span>
+              ${c.id === "savings"
+                ? `<span style="color:var(--gold);font-weight:700;">${fmt(auto)} <span style="font-size:9px;color:var(--muted);">auto 10%</span></span>`
+                : `<span class="budget-target" onclick="editBudget('${c.id}', this, ${target})">${fmt(target)}</span>`
+              }
+            </div>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-fill" style="width:${Math.min(pct,100)}%;background:${barColor(pct)}"></div>
+          </div>
+          <div class="budget-pct" style="color:${over?"#dc2626":"var(--muted)"}">
+            ${over ? fmt(spent-target)+" over budget" : pct.toFixed(0)+"% used · "+fmt(target-spent)+" remaining"}
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  function editBudget(id, el, current) {
+    const input = document.createElement("input");
+    input.type      = "number";
+    input.value     = current;
+    input.className = "budget-edit-input";
+    el.replaceWith(input);
+    input.focus();
+
+    const done = () => {
+      budgets[id] = parseFloat(input.value) || 0;
+      save();
+      renderBudget();
+    };
+
+    input.onblur    = done;
+    input.onkeydown = e => { if (e.key === "Enter") input.blur(); };
+  }
+
+  // ── modal ─────────────────────────────────────────────────────────────────
+
+  function openModal() {
+    setType("expense");
+    document.getElementById("m-amount").value = "";
+    document.getElementById("m-note").value   = "";
+    document.getElementById("m-date").value   = new Date().toISOString().slice(0, 10);
+    document.getElementById("modal-overlay").classList.add("open");
+  }
+
+  function closeModal() {
+    document.getElementById("modal-overlay").classList.remove("open");
+  }
+
+  function setType(type) {
+    modalType = type;
+    document.getElementById("type-expense").className = type === "expense" ? "active-expense" : "";
+    document.getElementById("type-income").className  = type === "income"  ? "active-income"  : "";
+    const sel = document.getElementById("m-category");
+    sel.innerHTML = CATS[type].map(c => `<option value="${c.id}">${c.icon} ${c.label}</option>`).join("");
+  }
+
+  function saveTx() {
+    const amount = parseFloat(document.getElementById("m-amount").value);
+    const date   = document.getElementById("m-date").value;
+    if (!amount || !date) return;
+
+    transactions.unshift({
+      id:       genId(),
+      type:     modalType,
+      category: document.getElementById("m-category").value,
+      amount,
+      note:     document.getElementById("m-note").value,
+      date,
+    });
+
+    save();
+    closeModal();
+    renderAll();
+  }
+
+  document.getElementById("modal-overlay").addEventListener("click", function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // ── init ──────────────────────────────────────────────────────────────────
+
+  function init() {
+    load();
+
+    // fill inputs with saved wealth data
+    document.getElementById("w-savings").value      = wealth.savings;
+    document.getElementById("w-rate").value         = wealth.rate;
+    document.getElementById("k401-balance").value   = wealth.k401_balance;
+    document.getElementById("k401-monthly").value   = wealth.k401_monthly;
+    document.getElementById("k401-match-pct").value = wealth.k401_match_pct;
+    document.getElementById("k401-match-cap").value = wealth.k401_match_cap;
+    document.getElementById("roth-balance").value   = wealth.roth_balance;
+    document.getElementById("roth-monthly").value   = wealth.roth_monthly;
+    document.getElementById("roth-income").value    = wealth.roth_income;
+    document.getElementById("roth-filing").value    = wealth.roth_filing;
+
+    buildMonthBar();
+    setType("expense");
+    renderAll();
+  }
+
+  init();
+
+</script>
+</body>
+</html>
